@@ -4,7 +4,7 @@ import java.net.InetSocketAddress
 class Main {
 
     companion object {
-        const val IP_ADDRESS = "192.168.1.50"
+        const val IP_ADDRESS = "127.0.0.1"
         const val PORT = 8080
 
         @JvmStatic
@@ -17,8 +17,8 @@ class Main {
     private val server = MainServer(InetSocketAddress(IP_ADDRESS, PORT))
 
     init {
-        Mysql()
-        this@Main.server.start()
+//        Mysql()
+        this.server.start()
 
     }
 

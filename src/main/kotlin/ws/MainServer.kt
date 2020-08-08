@@ -37,11 +37,8 @@ class MainServer(address: InetSocketAddress) : WebSocketServer(address) {
         val id = this.webinarWsId!!
         this.webinarWsId = null
         val json = Json(JsonConfiguration.Stable)
-        val jsonData = json.stringify(StopWebinar.serializer(), StopWebinar("stopWebinar"))
+        val jsonData = json.stringify(StopWebinar.serializer(), StopWebinar("stopWebinar")).toByteArray()
         this.getBesideId(id).forEach { it.client.send(jsonData) }
-
-        val index = this.getClientIndexById(id) ?: return
-        this.clients.removeAt(index)
     }
 
     override fun onOpen(conn: WebSocket?, handshake: ClientHandshake?) {
@@ -55,7 +52,8 @@ class MainServer(address: InetSocketAddress) : WebSocketServer(address) {
             val mainClient = this.clients[this.getClientIndexById(this.webinarWsId!!)!!]
 
             val json = Json(JsonConfiguration.Stable)
-            val jsonData = json.stringify(WebinarPeer.serializer(), WebinarPeer(mainClient.peerId, "webinarPeer"))
+            val jsonData =
+                json.stringify(WebinarPeer.serializer(), WebinarPeer(mainClient.peerId, "webinarPeer")).toByteArray()
             conn.send(jsonData)
 
 //            jsonData = json.stringify(Online.serializer(), Online(this.clients.count(), "online"))
@@ -68,10 +66,19 @@ class MainServer(address: InetSocketAddress) : WebSocketServer(address) {
     override fun onClose(conn: WebSocket?, code: Int, reason: String?, remote: Boolean) {
         val id: Int = conn?.getAttachment() ?: return
         if (id == this.webinarWsId) this.stopWebinar()
+
+        val index = this.getClientIndexById(id) ?: return
+        this.clients.removeAt(index)
     }
 
     override fun onMessage(conn: WebSocket?, message: String?) {
-        if (conn == null || message == null) return
+
+    }
+
+    override fun onMessage(conn: WebSocket?, m: ByteBuffer?) {
+        if (conn == null || m == null) return
+
+        val message = m.array().toString(Charsets.UTF_8)
 
         val jsonObject = JSONObject(message)
         if (!jsonObject.has("action")) return
@@ -102,15 +109,12 @@ class MainServer(address: InetSocketAddress) : WebSocketServer(address) {
             if (peerId.isEmpty()) return
 
             val json = Json(JsonConfiguration.Stable)
-            val jsonData = json.stringify(ConnectWebinar.serializer(), ConnectWebinar(peerId, "connectWebinar"))
+            val jsonData =
+                json.stringify(ConnectWebinar.serializer(), ConnectWebinar(peerId, "connectWebinar")).toByteArray()
             this.getClientById(this.webinarWsId!!)!!.client.send(jsonData)
 
             println("Connection to webinar")
         }
-
-    }
-
-    override fun onMessage(conn: WebSocket?, message: ByteBuffer?) {
 
     }
 
