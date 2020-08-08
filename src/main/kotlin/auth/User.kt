@@ -1,0 +1,4 @@
+package auth
+
+class User {
+}
