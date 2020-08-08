@@ -1,3 +1,5 @@
+import org.gradle.jvm.tasks.Jar
+
 plugins {
     java
     kotlin("jvm") version "1.3.71"
@@ -9,7 +11,7 @@ sourceSets.main {
     java.srcDir("src/main/kotlin/Main")
 }
 
-application{
+application {
     mainClassName = "Main"
 }
 
@@ -47,5 +49,22 @@ tasks {
 tasks.withType<Jar> {
     manifest {
         attributes["Main-Class"] = "Main"
+    }
+}
+
+val fatJar = task("fatJar", type = Jar::class) {
+    baseName = "${project.name}-fat"
+    manifest {
+        attributes["Implementation-Title"] = "Gradle Jar File Example"
+        attributes["Implementation-Version"] = version
+        attributes["Main-Class"] = "com.mkyong.DateUtils"
+    }
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    with(tasks.jar.get() as CopySpec)
+}
+
+tasks {
+    "build" {
+        dependsOn(fatJar)
     }
 }
