@@ -46,6 +46,6 @@ tasks {
 
 tasks.withType<Jar> {
     manifest {
-        attributes["Main-Class"] = "src.main.kotlin.Main"
+        attributes["Main-Class"] = "Main"
     }
 }
