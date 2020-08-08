@@ -53,10 +53,10 @@ tasks.withType<Jar> {
 }
 
 val fatJar = task("fatJar", type = Jar::class) {
-    baseName = "${project.name}-fat"
+    archiveBaseName.set("webinar")
     manifest {
         attributes["Implementation-Title"] = "Gradle Jar File Example"
-        attributes["Implementation-Version"] = version
+        attributes["Implementation-Version"] = archiveVersion
         attributes["Main-Class"] = "Main"
     }
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
