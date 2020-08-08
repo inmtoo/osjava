@@ -43,3 +43,9 @@ tasks {
         kotlinOptions.jvmTarget = "1.8"
     }
 }
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "src.main.kotlin.Main"
+    }
+}
